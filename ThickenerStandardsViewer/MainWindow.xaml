@@ -1,0 +1,185 @@
+﻿<Window xmlns:awe="http://schemas.awesomium.com/winfx"  x:Class="MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"       
+        xmlns:local="clr-namespace:ThickenerStandardsViewer"
+        mc:Ignorable="d"
+        Title="Design Sheets" Height="350" Width="525" Background="#FF2D2D30" >
+    <!--Icon="2DThickener_Welded_64.ico"-->
+    <!--xmlns:core="http://schemas.awesomium.com/core"
+        xmlns:data="http://schemas.awesomium.com/winfx/data"-->
+    <Window.Resources>
+        <Style x:Key="Image_BackGround" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="Images\2DThickener.png"/>            
+        </Style>    
+        <Style x:Key="TabControl" TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="Background" Value="#FF3F3F46"/>
+            <Setter Property="Foreground" Value="#FFBABABA"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}">
+                    <Setter Property="Background" Value="#FF3F3F46"/>
+                    <Setter Property="Foreground" Value="#FFBABABA"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!--<awe:UrlConverter x:Key="UrlConverter" />-->
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+        <!--<awe:WebSessionProvider x:Key="webSession" DataPath=".\Cache">
+            <core:WebPreferences SmoothScrolling="True" />
+        </awe:WebSessionProvider>-->
+    </Window.Resources>
+    <DockPanel>
+        <Menu x:Name="menu" DockPanel.Dock="Top" Background="#FF181818" Foreground="#FF949494" FontWeight="Bold" >
+            <MenuItem Header="File">
+                <MenuItem x:Name="MI_TopFiles" Header="Top Files" Click="MI_TopFiles_Click"/>
+                <MenuItem Header="Close"/>
+            </MenuItem>
+            <MenuItem Header="Options">
+                <MenuItem Header="Display Type">
+                    <MenuItem x:Name="Dis_Name" Header="FileName" IsCheckable="True">
+                        <MenuItem.Style>
+                            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" >
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsChecked, ElementName=Dis_Des}" Value="false"/>
+                                            <Condition Binding="{Binding IsChecked, ElementName=Dis_Des2}" Value="false"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="IsChecked" Value="True"/>
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <MenuItem x:Name="Dis_Des" Header="Description" IsCheckable="True"/>
+                    <MenuItem x:Name="Dis_Des2" Header="Description2" IsCheckable="True"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <Expander x:Name="Expander_Tree" DockPanel.Dock="Left" ExpandDirection="Right" IsExpanded="true" >
+            <Expander.Header>
+                <TextBlock Text="Design Sheet Tree" VerticalAlignment="Top">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
+            <DockPanel Margin="0,2,2,2">
+                <!--LastChildFill="False">-->
+                <DockPanel DockPanel.Dock="Top" Margin="2,2,2,2">
+                    <Button DockPanel.Dock="Right" Margin="2,0,0,0" Width="24">.....</Button>
+                    <Grid>
+                        <TextBox x:Name="TB_SearchTermTextBox" DockPanel.Dock="Left" Text="{Binding SearchProperty}"></TextBox>
+                        <TextBlock Text=" Search" Height="20" VerticalAlignment="Center"  IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsKeyboardFocused, ElementName=TB_SearchTermTextBox, Mode=OneWay}" Value="false"/>
+                                                <Condition Binding="{Binding Text, ElementName=TB_SearchTermTextBox}" Value=""/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </DockPanel>
+                <Button DockPanel.Dock="Top">Collapse all</Button>
+                <Label DockPanel.Dock="Bottom" FontSize="8">Version</Label>
+                <Button x:Name="Btn_SendComment" DockPanel.Dock="Bottom" Click="Btn_SendComment_Click">Send Comment</Button>
+                <TreeView x:Name="Tree" DockPanel.Dock="Top" SelectedItemChanged="Tree_SelectedItemChanged"  Background="#FF181818" BorderBrush="#FF181818">                    
+                    <TreeView.ItemContainerStyle>                        
+                         <!--This Style binds a TreeViewItem to a PersonViewModel.-->
+                        <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <!--<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />-->
+                            <Setter Property="FontWeight" Value="Normal" />
+                            <Setter Property="Foreground" Value="#FFBABABA" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                </Trigger>
+                                <DataTrigger  Binding="{Binding HasPDF}" Value="false">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" Visibility="{Binding ElementName=Dis_Name,Path=IsChecked,Converter={StaticResource booleanToVisibilityConverter} }" />
+                                <TextBlock DockPanel.Dock="Left" Text=" - " Visibility="{Binding ElementName=Dis_Name,Path=IsChecked,Converter={StaticResource booleanToVisibilityConverter} }" />
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Description}" Visibility="{Binding ElementName=Dis_Name,Path=IsChecked,Converter={StaticResource booleanToVisibilityConverter} }" />
+                                <TextBlock DockPanel.Dock="Left" Text=" - " Visibility="{Binding ElementName=Dis_Name2,Path=IsChecked,Converter={StaticResource booleanToVisibilityConverter} }" />
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Description}" Visibility="{Binding ElementName=Dis_Name2,Path=IsChecked,Converter={StaticResource booleanToVisibilityConverter} }" />
+                            </DockPanel>
+                        </HierarchicalDataTemplate>                        
+                    </TreeView.ItemTemplate>                    
+                </TreeView>
+            </DockPanel>
+        </Expander>
+        <Expander Header="Comments" DockPanel.Dock="Bottom" Margin="2,0,0,0" IsExpanded="False" >
+            <Expander.Style>
+                <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=TB_Comment, Path=Text}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                        <DataTrigger  Binding="{Binding ElementName=Tree, Path=SelectedItem.Comment}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Expander.Style>
+            <TextBox x:Name="TB_Comment" SpellCheck.IsEnabled="True" ToolTip="Every one can see this comment" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="36" 
+                     Text="{Binding ElementName=Tree, Path=SelectedItem.Comment,Mode=OneWay}"></TextBox>
+        </Expander>
+     
+        <TabControl DockPanel.Dock="Right" x:Name="TB_Tabs" Background="#FF181818">            
+            <TabItem Width="0" IsSelected="True">
+                <Image DockPanel.Dock="Right" Style="{StaticResource Image_BackGround}" />
+            </TabItem>
+            <TabItem Header="PDF"  Style="{StaticResource TabControl}" Visibility="{Binding ElementName=Tree, Path=SelectedItem.HasPDF, Converter={StaticResource booleanToVisibilityConverter}}">
+                <WebBrowser  DockPanel.Dock="Right"  x:Name="WB_PDF" Margin="2,0,0,0" Visibility="{Binding ElementName=Tree, Path=SelectedItem.HasPDF, Mode=OneWay, Converter={StaticResource booleanToVisibilityConverter}}"/>
+            </TabItem>
+            <TabItem Header="PDF2" Style="{StaticResource TabControl}"  Visibility="{Binding ElementName=Tree, Path=SelectedItem.HasPDF, Mode=OneWay, Converter={StaticResource booleanToVisibilityConverter}}">
+                <!--<awe:WebControl x:Name="WB_Viewer"/>-->
+            </TabItem>
+            <TabItem Header="Drawing" Style="{StaticResource TabControl}" Visibility="{Binding ElementName=Tree,Path=SelectedItem.HasNative,Converter={StaticResource booleanToVisibilityConverter},Mode=OneWay}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Height="Auto" TextWrapping='Wrap'  Text="The drawing may not be released, use  only as a guidline. Contact product line for more details" TextAlignment="Center" FontSize="16" Foreground="#FFE40707"/>
+                    <WindowsFormsHost DockPanel.Dock="Top" x:Name="WFH"/>
+
+
+                </DockPanel>
+            </TabItem>
+            <!--<TabItem Header="Enovia" Style="{StaticResource TabControl}" IsSelected="True" Visibility="Collapsed">
+                <DockPanel>
+                    <awe:WebDialogsLayer>
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Height="30"  Visibility="{Binding IsRegularWindow, ElementName=webWindow, Converter={StaticResource booleanToVisibilityConverter}}">
+                                <Button Content="Back" Width="65" Command="{x:Static NavigationCommands.BrowseBack}" CommandTarget="{Binding ElementName=webControl}"/>
+                                <Button Content="Forward" Width="72" Command="{x:Static NavigationCommands.BrowseForward}" CommandTarget="{Binding ElementName=webControl}"/>
+                                <Button Content="Reload" Width="65" Command="{x:Static NavigationCommands.Refresh}" CommandParameter="False" CommandTarget="{Binding ElementName=webControl}"/>
+                                <Button Content="Home" Width="65" Command="{x:Static NavigationCommands.BrowseHome}" CommandTarget="{Binding ElementName=webControl}"/>
+                                <TextBox FontSize="16" Padding="3,0" VerticalContentAlignment="Center" TextWrapping="NoWrap"  Text="{data:SourceBinding webControl}" />
+                            </DockPanel>
+                            <awe:WebControl Grid.Row="1" x:Name="webControl" NativeView="{Binding NativeView, ElementName=webWindow}" WebSession="{Binding Source={StaticResource webSession}}" Source="{Binding Source, ElementName=webWindow}" />
+                        </DockPanel>
+                    </awe:WebDialogsLayer>
+                </DockPanel>
+            </TabItem>-->
+        </TabControl>
+    </DockPanel>
+</Window>
